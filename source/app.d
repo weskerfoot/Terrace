@@ -60,7 +60,7 @@ createIndex()
   {
     string filename = f.name.replace("/", "_");
     std.file.write("./site/" ~ filename ~ ".html", f.render);
-    return `<a href="/site/%s">%s</a></br>`.format(f.name.replace("/", "_"), f.name);
+    return `<a href="site/%s">%s</a></br>`.format(f.name.replace("/", "_"), f.name);
   }
 
   std.file.write("index.html",
