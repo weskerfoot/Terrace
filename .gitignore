@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/terrace
+terrace.so
+terrace.dylib
+terrace.dll
+terrace.a
+terrace.lib
+terrace-test-*
+*.exe
+*.o
+*.obj
+*.lst

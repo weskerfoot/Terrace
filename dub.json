@@ -1,0 +1,12 @@
+{
+	"authors": [
+		"Wesley Kerfoot"
+	],
+	"copyright": "Copyright © 2019, Wesley Kerfoot",
+	"dependencies": {
+		"hunt-markdown": "~>1.0.4"
+  },
+	"description": "A Language Agnostic Documentation Generator",
+	"license": "GPL",
+	"name": "terrace"
+}
