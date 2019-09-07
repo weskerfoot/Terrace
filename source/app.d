@@ -3,6 +3,7 @@ import std.algorithm;
 import std.file;
 import std.string;
 import std.array;
+import std.format;
 
 /* markdown rendering imports */
 import hunt.markdown.node.Node;
@@ -43,18 +44,27 @@ getMarkdown()
   return md_files;
 }
 
-string[]
-createHeaderLinks()
-{
-  return [];
-}
 
 void
 createIndex()
   /* Creates the index.html file */
 {
+  MarkdownFile[] mdfiles = getMarkdown;
+
+  mdfiles.each!(f => f.name.split("/").writeln);
+
+  if (!"./site".exists) "./site".mkdir;
+
+  string
+  headerLink(MarkdownFile f)
+  {
+    string filename = f.name.replace("/", "_");
+    std.file.write("./site/" ~ filename ~ ".html", f.render);
+    return `<a href="/site/%s">%s</a></br>`.format(f.name.replace("/", "_"), f.name);
+  }
+
   std.file.write("index.html",
-                 map!((f) => f.render)(getMarkdown).join("\n"));
+                 mdfiles.map!(headerLink).join("\n"));
 }
 
 void
