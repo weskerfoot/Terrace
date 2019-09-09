@@ -4,8 +4,9 @@
 	],
 	"copyright": "Copyright © 2019, Wesley Kerfoot",
 	"dependencies": {
+		"diet-ng": "~>1.6.0",
 		"hunt-markdown": "~>1.0.4"
-  },
+	},
 	"description": "A Language Agnostic Documentation Generator",
 	"license": "GPL",
 	"name": "terrace"

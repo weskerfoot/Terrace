@@ -4,6 +4,7 @@ import std.file;
 import std.string;
 import std.array;
 import std.format;
+import std.typecons;
 
 /* markdown rendering imports */
 import hunt.markdown.node.Node;
@@ -22,26 +23,38 @@ struct MarkdownFile
   }
 }
 
-MarkdownFile[]
-getMarkdown()
+/* Represents a directory tree with associated list of markdown files */
+/* This allows for basically any structure, all you need are markdown files anywhere */
+/* The tree will be displayed alongside every page, with collapsable links, etc */
+/* A table of contents will be put at the top of every page to navigate as well */
+struct DirTree
 {
+  MarkdownFile[] mdfiles;
+  DirTree[] subdirs;
+}
 
-  MarkdownFile[] md_files = [];
+DirTree
+getFileTree(string directory)
+{
+  MarkdownFile[] mdfiles = [];
+  string[] subdirs = [];
 
-  foreach (string name; dirEntries("", SpanMode.breadth)) {
-
+  foreach (string name; dirEntries(directory, SpanMode.shallow)) {
     string extension = name.split(".").back;
-
     if (extension == "md") {
-      MarkdownFile mdfile = {
-        name: name,
-        content: name.readText
-      };
-
-      md_files ~= [mdfile];
+      mdfiles ~= MarkdownFile(name, name.readText);
+    }
+    else if (name.isDir) {
+      subdirs ~= name;
     }
   }
-  return md_files;
+
+  DirTree[] children = subdirs
+                       .map!((d) => getFileTree(d))
+                       .filter!((dtree) => dtree.mdfiles || dtree.subdirs)
+                       .array;
+
+  return DirTree(mdfiles, children);
 }
 
 
@@ -49,26 +62,14 @@ void
 createIndex()
   /* Creates the index.html file */
 {
-  MarkdownFile[] mdfiles = getMarkdown;
 
   mdfiles.each!(f => f.name.split("/").writeln);
 
   if (!"./site".exists) "./site".mkdir;
-
-  string
-  headerLink(MarkdownFile f)
-  {
-    string filename = f.name.replace("/", "_");
-    std.file.write("./site/" ~ filename ~ ".html", f.render);
-    return `<a href="site/%s">%s</a></br>`.format(f.name.replace("/", "_"), f.name);
-  }
-
-  std.file.write("index.html",
-                 mdfiles.map!(headerLink).join("\n"));
 }
 
 void
 main()
 {
-  createIndex();
+  getFileTree("");
 }
