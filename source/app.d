@@ -36,12 +36,14 @@ struct DirTree
 DirTree
 getFileTree(string directory)
 {
+  /* TODO check for exceptions here, e.g. broken symlinks */
   MarkdownFile[] mdfiles = [];
   string[] subdirs = [];
 
   foreach (string name; dirEntries(directory, SpanMode.shallow)) {
     string extension = name.split(".").back;
     if (extension == "md") {
+      /* TODO detect encoding of file */
       mdfiles ~= MarkdownFile(name, name.readText);
     }
     else if (name.isDir) {
@@ -57,13 +59,25 @@ getFileTree(string directory)
   return DirTree(mdfiles, children);
 }
 
+string
+renderTOC(DirTree tree)
+{
+  if (tree.mdfiles.length == 0) {
+    return "";
+  }
+
+  string[] rootName = tree.mdfiles[0].name.split("/");
+
+  return ("<h3>" ~ (rootName.length > 1 ? rootName[0..($-1)].join("/") : "root") ~ "</h3>") ~
+            (("<ul>" ~ tree.mdfiles.map!((f) => "<li>" ~ f.name ~ "</li>").array.join(""))
+              ~ (tree.subdirs.map!(renderTOC).array.join(""))
+          ~ "</ul>");
+}
 
 void
 createIndex()
   /* Creates the index.html file */
 {
-
-  mdfiles.each!(f => f.name.split("/").writeln);
 
   if (!"./site".exists) "./site".mkdir;
 }
@@ -71,5 +85,6 @@ createIndex()
 void
 main()
 {
-  getFileTree("");
+  DirTree tree = getFileTree("");
+  writeln(renderTOC(tree));
 }
